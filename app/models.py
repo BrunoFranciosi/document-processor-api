@@ -12,7 +12,8 @@ class Cliente(Base):
     criado_em = Column(DateTime, default=datetime.utcnow)
 
 
-    documentos = relationship('Documento', back_populates='cliente')
+    documentos = relationship('Documento', back_populates='cliente', cascade="all, delete")
+
 
 
 class Documento(Base):
@@ -28,3 +29,5 @@ class Documento(Base):
 
 
     cliente = relationship('Cliente', back_populates='documentos')
+
+    

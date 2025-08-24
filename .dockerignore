@@ -1,0 +1,15 @@
+# Ignorar virtualenvs locais
+venv/
+.venv/
+
+# Ignorar caches do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+
+# Ignorar controle de versão
+.git
+.gitignore
+

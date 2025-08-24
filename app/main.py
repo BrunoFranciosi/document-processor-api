@@ -6,10 +6,8 @@ from bs4 import BeautifulSoup
 import io, requests
 from sqlalchemy import func
 
-# Cria tabelas no banco dentro do db CRIA TUDO NO BANCO DE DADOS 2 funcao
 models.Base.metadata.create_all(bind=database.db)
 
-# Criando a sessão global do banco
 db = database.SessionLocal()
 
 
@@ -35,7 +33,7 @@ def listar_clientes():
 def buscar_cliente(cliente_id: int):
     cliente = crud.buscar_cliente(db, cliente_id)
     if not cliente:
-        raise HTTPException(404, "Cliente não encontrado") # O cliente da API vai receber um response HTTP 404 (status correto), vai recer um json certo, caso seja um return "Cliente não encontrado"  Isso não retorna um erro HTTP 404. O FastAPI vai retornar status 200 OK com um corpo: "Cliente não encontrado"
+        raise HTTPException(404, "Cliente não encontrado")
     return cliente
 
 @app.put("/clientes/{cliente_id}")

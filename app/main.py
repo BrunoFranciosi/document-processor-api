@@ -87,23 +87,29 @@ def documento_de_url(cliente_id: int = Form(...), url: str = Form(...)):
     )
 
 # Listar todos os clientes com contagem de documentos
-'''
+
 @app.get("/clientes-com-contagem/")
 def clientes_com_contagem():
     resultado = (
         db.query(
-            models.Client,
-            func.count(models.Document.id).label("qtd_documentos")
+            models.Cliente,
+            func.count(models.Documento.id).label("qtd_documentos")
         )
-        .outerjoin(models.Document, models.Document.cliente_id == models.Client.id)
-        .group_by(models.Client.id)
+        .outerjoin(models.Documento, models.Documento.cliente_id == models.Cliente.id)
+        .group_by(models.Cliente.id)
         .all()
     )
     return [
-        {"id": c.Client.id, "nome": c.Client.name, "email": c.Client.email, "qtd_documentos": c.qtd_documentos}
-        for c in resultado
+        {
+            "id": cliente.id,
+            "nome": cliente.nome,
+            "email": cliente.email,
+            "qtd_documentos": qtd_documentos
+        }
+        for cliente, qtd_documentos in resultado
     ]
-'''
+
+
 
 # Listar todos os documentos de um cliente específico
 @app.get("/clientes/{cliente_id}/documentos/")
@@ -111,26 +117,26 @@ def listar_documentos(cliente_id: int):
     return crud.listar_documentos_do_cliente(db, cliente_id)
 
 # Buscar documentos por usuário (retornando campos específicos)
-'''
 @app.get("/documentos/buscar/")
 def buscar_documentos(cliente_id: int = None, nome_cliente: str = None):
-    query = db.query(models.Document, models.Client).join(models.Client)
+    query = db.query(models.Documento, models.Cliente).join(models.Cliente)
     
     if cliente_id:
-        query = query.filter(models.Document.cliente_id == cliente_id)
+        query = query.filter(models.Documento.cliente_id == cliente_id)
     if nome_cliente:
-        query = query.filter(models.Client.name.ilike(f"%{nome_cliente}%"))
+        query = query.filter(models.Cliente.nome.ilike(f"%{nome_cliente}%"))
     
     resultados = query.all()
+    
     return [
         {
-            "documento_id": d.Document.id,
-            "titulo": d.Document.titulo,
-            "origem": d.Document.origem,
-            "cliente_id": d.Client.id,
-            "cliente_nome": d.Client.name
+            "documento_id": documento.id,
+            "titulo": documento.titulo,
+            "origem": documento.origem,
+            "cliente_id": cliente.id,
+            "cliente_nome": cliente.nome
         }
-        for d in resultados
+        for documento, cliente in resultados
     ]
 
-'''
+

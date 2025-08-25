@@ -6,8 +6,10 @@ from bs4 import BeautifulSoup
 import io, requests
 from sqlalchemy import func
 
+# Cria as tabelas no banco se ainda nao existirem
 models.Base.metadata.create_all(bind=database.db)
 
+# Instancia a sessao do banco de dados
 db = database.SessionLocal()
 
 
@@ -56,27 +58,32 @@ def deletar_cliente(cliente_id: int):
 
 # DOCUMENTOS
 
+# Upload de arquivo PDF
 @app.post("/documentos/upload-pdf/")
 def upload_pdf(cliente_id: int = Form(...), file: UploadFile = File(...)):
     cliente = crud.buscar_cliente(db, cliente_id)
     if not cliente:
         raise HTTPException(404, "Cliente não encontrado")
 
+    # Le o conteúdo do PDF
     conteudo_bytes = file.file.read()
     reader = PdfReader(io.BytesIO(conteudo_bytes))
     texto = "\n".join([p.extract_text() or "" for p in reader.pages])
     titulo = file.filename
 
+    # Salva no banco como documento
     return crud.adicionar_documento(
         db, cliente_id, titulo, texto, origem="pdf", nome_arquivo=file.filename
     )
 
+# Captura documento a partir de uma URL
 @app.post("/documentos/url/")
 def documento_de_url(cliente_id: int = Form(...), url: str = Form(...)):
     cliente = crud.buscar_cliente(db, cliente_id)
     if not cliente:
         raise HTTPException(404, "Cliente não encontrado")
 
+    # Faz requisição da página e extrai os <p>
     html = requests.get(url).text
     soup = BeautifulSoup(html, "html.parser")
     titulo = url
@@ -87,7 +94,6 @@ def documento_de_url(cliente_id: int = Form(...), url: str = Form(...)):
     )
 
 # Listar todos os clientes com contagem de documentos
-
 @app.get("/clientes-com-contagem/")
 def clientes_com_contagem():
     resultado = (
@@ -121,13 +127,16 @@ def listar_documentos(cliente_id: int):
 def buscar_documentos(cliente_id: int = None, nome_cliente: str = None):
     query = db.query(models.Documento, models.Cliente).join(models.Cliente)
     
+    # Filtro por ID de cliente
     if cliente_id:
         query = query.filter(models.Documento.cliente_id == cliente_id)
+    # Filtro por nome do cliente
     if nome_cliente:
         query = query.filter(models.Cliente.nome.ilike(f"%{nome_cliente}%"))
     
     resultados = query.all()
     
+    # Retorna informações resumidas do documento + cliente
     return [
         {
             "documento_id": documento.id,

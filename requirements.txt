@@ -5,3 +5,5 @@ python-multipart
 PyPDF2
 beautifulsoup4
 requests
+httpx
+pytest

@@ -122,6 +122,7 @@ def clientes_com_contagem():
 def listar_documentos(cliente_id: int):
     return crud.listar_documentos_do_cliente(db, cliente_id)
 
+
 # Buscar documentos por usuário (retornando campos específicos)
 @app.get("/documentos/buscar/")
 def buscar_documentos(cliente_id: int = None, nome_cliente: str = None):
